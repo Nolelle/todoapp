@@ -1,10 +1,10 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import request from "supertest";
 import { DELETE, PUT } from "../app/api/todos/[id]/route";
 import { GET, POST } from "../app/api/todos/route";
 
 // Mock the Next.js API handler
-const apiHandler = (handler: any) => {
+const apiHandler = (handler: (req: NextRequest) => Promise<NextResponse>) => {
   return {
     post: (url: string) => request(handler),
     get: (url: string) => request(handler),
