@@ -9,7 +9,11 @@ export default function TodoList({ todos, setTodos }) {
   return (
     <ul>
       {todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} onDelete={deleteTodo} />
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onDelete={deleteTodo}
+        />
       ))}
     </ul>
   );

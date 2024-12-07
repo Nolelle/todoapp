@@ -1,11 +1,29 @@
+"use client";
+
 import { useState } from "react";
 
-export default function TodoForm({ todo = {}, onAddTodo, onSubmit }) {
-  const [title, setTitle] = useState(todo.title || "");
+interface TodoFormProps {
+  // 'onAddTodo' is optional, used for adding a new todo
+  onAddTodo?: (title: string) => void;
+  // 'onSubmit' is optional, used for editing/updating a todo
+  onSubmit?: (title: string) => Promise<void>;
+  todo?: { title?: string };
+}
 
-  const handleSubmit = (e) => {
+export default function TodoForm({
+  todo = {},
+  onAddTodo,
+  onSubmit
+}: TodoFormProps) {
+  const [title, setTitle] = useState<string>(todo.title || "");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onAddTodo ? onAddTodo(title) : onSubmit(title);
+    if (onAddTodo) {
+      onAddTodo(title);
+    } else if (onSubmit) {
+      onSubmit(title);
+    }
     setTitle("");
   };
 

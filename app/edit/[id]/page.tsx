@@ -1,10 +1,11 @@
+"use client";
 import TodoForm from "@/components/TodoForm";
-import { useRouter } from "next/router";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function EditTodoPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = useParams();
   const [todo, setTodo] = useState(null);
 
   useEffect(() => {
@@ -20,10 +21,17 @@ export default function EditTodoPage() {
     await fetch(`/api/todos/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
+      body: JSON.stringify({ title })
     });
     router.push("/");
   };
 
-  return todo ? <TodoForm todo={todo} onSubmit={updateTodo} /> : <p>Loading...</p>;
+  return todo ? (
+    <TodoForm
+      todo={todo}
+      onSubmit={updateTodo}
+    />
+  ) : (
+    <p>Loading...</p>
+  );
 }
