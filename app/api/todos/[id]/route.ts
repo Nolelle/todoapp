@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client/extension";
+import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
@@ -16,7 +16,7 @@ export async function PUT(
       data: { title, completed }
     });
     return NextResponse.json(updatedTodo, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Todo not found or update failed" },
       { status: 404 }
@@ -24,14 +24,16 @@ export async function PUT(
   }
 }
 
-export async function DELETE({ params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const { id } = params;
 
   try {
     await prisma.todo.delete({ where: { id } });
     return NextResponse.json({}, { status: 204 });
-  } catch (error) {
-    console.log(error);
+  } catch {
     return NextResponse.json({ error: "Todo not found" }, { status: 404 });
   }
 }
