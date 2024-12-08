@@ -37,6 +37,7 @@ export default function HomePage() {
   return (
     <div>
       <Header />
+      <Sidebar />
       <TodoForm onAddTodo={addTodo} />
       <TodoList
         todos={todos}
