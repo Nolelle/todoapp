@@ -31,6 +31,7 @@ export async function DELETE({ params }: { params: { id: string } }) {
     await prisma.todo.delete({ where: { id } });
     return NextResponse.json({}, { status: 204 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Todo not found" }, { status: 404 });
   }
 }

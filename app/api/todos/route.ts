@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(newTodo, { status: 201 });
   } catch (error) {
+    console.error("Error retrieving todos:", error);
     return NextResponse.json(
       { error: "Failed to create todo" },
       { status: 500 }
