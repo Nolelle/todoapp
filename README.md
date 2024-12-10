@@ -83,7 +83,9 @@ npx prisma studio
 
 Run the Seed Script: Execute the following command to seed your database:
 
+```bash
 npx prisma db seed
+```
 
 ### Run the Development Server
 
