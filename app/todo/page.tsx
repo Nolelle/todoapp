@@ -1,30 +1,37 @@
-"use client";
-
+import { auth } from "@/auth";
 import LogoutButton from "@/components/LogoutButton";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
 
-export default function TodoHomePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+export default async function TodosPage() {
+  const session = await auth();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/"); // Redirect to login page if not authenticated
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    return <p>Loading...</p>; // Optional: Add a spinner here
+  // Protect the page - redirect to login if not authenticated
+  if (!session) {
+    redirect("/");
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <h1 className="text-3xl font-bold mb-6">Your Todos</h1>
-      {session && <p className="mb-4">Signed in as {session.user?.email}</p>}
-      <LogoutButton />
-      {/* Add your Todo list components here */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with user info and logout */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Todos</h1>
+            <p className="text-sm text-gray-600">
+              Signed in as {session.user?.email}
+            </p>
+          </div>
+          <LogoutButton />
+        </div>
+      </header>
+
+      {/* Main content area */}
+      <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        {/* Todo list will go here */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="text-gray-600">Your todos will appear here...</p>
+        </div>
+      </main>
     </div>
   );
 }
