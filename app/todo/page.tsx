@@ -22,6 +22,7 @@ export default function TodoHomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <h1 className="text-3xl font-bold mb-6">Your Todos</h1>
+      {session && <p className="mb-4">Signed in as {session.user?.email}</p>}
       <LogoutButton />
       {/* Add your Todo list components here */}
     </div>
