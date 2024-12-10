@@ -1,37 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# TodoApp
 
-First, run the development server:
+A simple and effective Todo Application that supports user authentication, CRUD operations, filtering, sorting, and responsive design. Built with Next.js, Prisma, and PostgreSQL.
+
+---
+
+## Features
+
+- **Create Todos:** Add a new todo with attributes like title, description, due date, priority, and status.
+- **Read Todos:** View all todos or inspect individual details.
+- **Update Todos:** Edit attributes such as title, description, due date, priority, and status.
+- **Delete Todos:** Remove todos from the list.
+- **Search, Filter, and Sort:** Search todos, filter by status, priority, or due date, and sort by creation date, due date, or priority.
+- **User Authentication:** Login/logout functionality using NextAuth.js with social login options.
+- **Dark Mode:** Support for light and dark themes.
+
+---
+
+## Setup
+
+### Prerequisites
+
+Ensure the following tools are installed on your system:
+
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [npm](https://www.npmjs.com/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Prisma CLI](https://www.prisma.io/)
+
+### Clone the Repository
+
+```bash
+git clone <repository-url>
+cd todoapp
+```
+
+### Install Dependencies
+
+Install the required dependencies using npm:
+
+```bash
+npm install
+```
+
+### Configure Environment Variables
+
+Create a `.env` file in the root directory and include the following configuration:
+
+```env
+DATABASE_URL=postgres://<username>:<password>@<host>/<database>?sslmode=require
+```
+
+Replace `<username>`, `<password>`, `<host>`, and `<database>` with your PostgreSQL database details.
+
+### Set Up the Database
+
+1. Push the Prisma schema to the database:
+
+   ```bash
+   npx prisma db push
+   ```
+
+2. Seed the database (if required).
+
+### Generate Prisma Client
+
+Ensure the Prisma client is up to date by running:
+
+```bash
+npx prisma generate
+```
+
+### Run Prisma Studio
+
+To visually interact with your Neon database, use Prisma Studio:
+
+```bash
+npx prisma studio
+```
+
+### Seed the Database
+
+Run the Seed Script: Execute the following command to seed your database:
+
+npx prisma db seed
+
+### Run the Development Server
+
+Start the application in development mode:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+The following npm scripts are available:
 
-To learn more about Next.js, take a look at the following resources:
+- **`npm run dev`**: Start the development server.
+- **`npm run build`**: Build the project for production.
+- **`npm run start`**: Start the production server.
+- **`npm run lint`**: Run the linter.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Using the App
 
-## Deploy on Vercel
+1. **Access the App**: Open `http://localhost:3000` in your browser.
+2. **Register or Login**: Use the authentication feature to register or log in.
+3. **Manage Todos**: Create, read, update, or delete todos using the provided UI.
+4. **Filter and Sort**: Organize todos by status, priority, or due date.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# todoapp
+## Deployment
+
+To deploy the project, use hosting services like [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/). Ensure the `.env` file is configured for the production database.
+
+---
+
+## Contributing
+
+Contributions are welcome! Fork the repository and submit a pull request.
+
+---
+
+## License
+
+This project is open-source under the MIT License.
