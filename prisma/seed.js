@@ -1,12 +1,26 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 const prisma = new PrismaClient();
 
 async function main() {
+  // Clear existing todos (optional for development)
+  await prisma.todo.deleteMany();
+
+  // Clear existing users (optional for development)
+  await prisma.user.deleteMany();
+
+  // Retrieve the seed user password from the .env file
+  const rawPassword = process.env.SEED_USER_PASSWORD || "defaultpassword";
+
+  // Hash the password before saving to the database
+  const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
   // Create a user
   const user = await prisma.user.create({
     data: {
       email: "testuser@example.com",
-      password: "securepassword", // Replace with hashed password in real use
+      password: hashedPassword, // Store the hashed password
       name: "Test User"
     }
   });
