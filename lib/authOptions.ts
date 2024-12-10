@@ -1,11 +1,11 @@
-// lib/authOptions.ts
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma"; // Adjust the path to match your structure
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { compare } from "bcryptjs";
-import { NextAuthOptions } from "next-auth";
+import { compare } from "bcryptjs"; // For password comparison
+import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -26,41 +26,42 @@ const authOptions: NextAuthOptions = {
           throw new Error("Invalid email or password");
         }
 
-        const isValidPassword = await compare(
+        const isPasswordValid = await compare(
           credentials.password,
           user.password
         );
-        if (!isValidPassword) {
+        if (!isPasswordValid) {
           throw new Error("Invalid email or password");
         }
 
-        return { id: user.id, email: user.email, name: user.name };
+        // Return the user object with the id as a string
+        return {
+          id: String(user.id), // Convert ID to string
+          email: user.email,
+          name: user.name || "Anonymous"
+        };
       }
     })
   ],
-  adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt"
   },
   callbacks: {
     async session({ session, token }) {
       if (token?.id) {
-        session.user = { ...session.user, id: token.id };
+        session.user = {
+          ...session.user,
+          id: token.id
+        };
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id; // Persist the user's ID in the token
       }
       return token;
     }
   },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error"
-  }
+  secret: process.env.NEXTAUTH_SECRET
 };
-
-export default authOptions;
