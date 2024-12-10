@@ -15,16 +15,14 @@ export async function createUser(
 ) {
   const hashedPassword = await hash(password, 10); // Hash password with a salt of 10
 
-  // Construct the data object conditionally
-  const data: { email: string; password: string; name?: string } = {
-    email,
-    password: hashedPassword
-  };
+  // Create the user with a fallback value for the name
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      name: name || "Default Name" // Fallback to "Default Name" if no name is provided
+    }
+  });
 
-  if (name) {
-    data.name = name; // Include name only if it's defined
-  }
-
-  const user = await prisma.user.create({ data });
   return user;
 }
