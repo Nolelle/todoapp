@@ -30,8 +30,6 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
       status: "pending"
     };
 
-    console.log("Sending todo data:", data);
-
     try {
       const response = await fetch("/api/todos", {
         method: "POST",
@@ -49,7 +47,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
       form.reset();
       setError(null);
     } catch (error) {
-      console.error("Error details:", error);
+      console.error("Error creating todo:", error);
       setError(
         error instanceof Error
           ? error.message
@@ -61,7 +59,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
   };
 
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-4">
       {error && (
         <ErrorMessage
           message={error}
@@ -71,7 +69,6 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow"
       >
         <div className="space-y-4">
           <input
@@ -111,26 +108,27 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
                        focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-                     disabled:opacity-50 disabled:cursor-not-allowed 
-                     flex items-center justify-center"
-          >
-            {isSubmitting ? (
-              <>
-                <span className="mr-2">Adding...</span>
-                <LoadingSpinner
-                  color="white"
-                  size="small"
-                />
-              </>
-            ) : (
-              "Add Todo"
-            )}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <LoadingSpinner
+                    color="white"
+                    size="small"
+                  />
+                  <span>Adding...</span>
+                </div>
+              ) : (
+                "Add Todo"
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>
