@@ -1,136 +1,149 @@
+# TodoApp - Next.js, Prisma, and PostgreSQL
 
-# TodoApp
+A modern todo application with user authentication, CRUD operations, and a responsive design built using Next.js, Prisma, and PostgreSQL.
 
-A simple and effective Todo Application that supports user authentication, CRUD operations, filtering, sorting, and responsive design. Built with Next.js, Prisma, and PostgreSQL.
+## Prerequisites
 
----
+Before you begin, ensure you have installed:
 
-## Features
+- Node.js (v16 or higher)
+- npm or yarn
+- Git
 
-- **Create Todos:** Add a new todo with attributes like title, description, due date, priority, and status.
-- **Read Todos:** View all todos or inspect individual details.
-- **Update Todos:** Edit attributes such as title, description, due date, priority, and status.
-- **Delete Todos:** Remove todos from the list.
-- **Search, Filter, and Sort:** Search todos, filter by status, priority, or due date, and sort by creation date, due date, or priority.
-- **User Authentication:** Login/logout functionality using NextAuth.js with social login options.
-- **Dark Mode:** Support for light and dark themes.
+## Quick Start
 
----
-
-## Setup
-
-### Prerequisites
-
-Ensure the following tools are installed on your system:
-
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- [npm](https://www.npmjs.com/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Prisma CLI](https://www.prisma.io/)
-
-### Clone the Repository
+1. **Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone <your-repo-url>
 cd todoapp
 ```
 
-### Install Dependencies
-
-Install the required dependencies using npm:
+2. **Install dependencies**
 
 ```bash
 npm install
 ```
 
-### Configure Environment Variables
+3. **Set up your database**
 
-Create a `.env` file in the root directory and include the following configuration:
+This project uses [Neon](https://neon.tech) for PostgreSQL. To set up:
+
+a. Create a Neon account and create a new project
+b. Get your database connection string from the Neon dashboard
+c. Create a `.env.local` file in the root directory with the following variables:
 
 ```env
-DATABASE_URL=postgres://<username>:<password>@<host>/<database>?sslmode=require
+# Database Configuration
+DATABASE_URL="your-neon-database-url"
+
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+AUTH_SECRET="your-auth-secret" # Generate using: npx auth secret
+
+# Development Settings
+SEED_USER_PASSWORD="your-seed-user-password"
 ```
 
-Replace `<username>`, `<password>`, `<host>`, and `<database>` with your PostgreSQL database details.
-
-### Set Up the Database
-
-1. Push the Prisma schema to the database:
-
-   ```bash
-   npx prisma db push
-   ```
-
-2. Seed the database (if required).
-
-### Generate Prisma Client
-
-Ensure the Prisma client is up to date by running:
+4. **Set up the database schema**
 
 ```bash
+# Generate Prisma Client
 npx prisma generate
-```
 
-### Run Prisma Studio
+# Push the schema to your database
+npx prisma db push
 
-To visually interact with your Neon database, use Prisma Studio:
-
-```bash
-npx prisma studio
-```
-
-### Seed the Database
-
-Run the Seed Script: Execute the following command to seed your database:
-
-```bash
+# Seed the database with initial data
 npx prisma db seed
 ```
 
-### Run the Development Server
-
-Start the application in development mode:
+5. **Start the development server**
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:3000`.
+Visit `http://localhost:3000` to see your application running.
 
----
+## Test Account
 
-## Scripts
+After seeding the database, you can use these credentials to test the application:
 
-The following npm scripts are available:
+- Email: <testuser@example.com>
+- Password: (The value you set for SEED_USER_PASSWORD in .env.local)
 
-- **`npm run dev`**: Start the development server.
-- **`npm run build`**: Build the project for production.
-- **`npm run start`**: Start the production server.
-- **`npm run lint`**: Run the linter.
+## Available Scripts
 
----
+- `npm run dev` - Start the development server with Turbopack
+- `npm run build` - Create a production build
+- `npm start` - Start the production server
+- `npm run lint` - Run ESLint
 
-## Using the App
+## Development Tools
 
-1. **Access the App**: Open `http://localhost:3000` in your browser.
-2. **Register or Login**: Use the authentication feature to register or log in.
-3. **Manage Todos**: Create, read, update, or delete todos using the provided UI.
-4. **Filter and Sort**: Organize todos by status, priority, or due date.
+### Prisma Studio
 
----
+To view and edit your database content:
 
-## Deployment
+```bash
+npx prisma studio
+```
 
-To deploy the project, use hosting services like [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/). Ensure the `.env` file is configured for the production database.
+### Database Management
 
----
+To reset your database and apply new seeds:
+
+```bash
+# Reset the database
+npx prisma db push --force-reset
+
+# Run seeds again
+npx prisma db seed
+```
+
+## Project Structure
+
+```
+todoapp/
+├── app/                  # Next.js app directory
+├── components/          # React components
+├── lib/                 # Utility functions and configurations
+├── prisma/             # Prisma schema and migrations
+└── types/              # TypeScript type definitions
+```
+
+## Features
+
+- ✅ User Authentication with NextAuth.js
+- ✅ CRUD operations for todos
+- ✅ Priority levels and due dates
+- ✅ Responsive design with Tailwind CSS
+- ✅ Real-time updates
+- ✅ Form validation
+- ✅ Error handling
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Errors**
+   - Verify your DATABASE_URL in .env.local
+   - Ensure your Neon database is active
+   - Check if your IP is whitelisted in Neon dashboard
+
+2. **Authentication Issues**
+   - Verify AUTH_SECRET is set correctly
+   - Ensure NEXTAUTH_URL matches your development URL
+
+3. **Prisma Issues**
+   - Run `npx prisma generate` after schema changes
+   - Use `npx prisma db push` to sync schema changes
 
 ## Contributing
 
-Contributions are welcome! Fork the repository and submit a pull request.
-
----
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is open-source under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
