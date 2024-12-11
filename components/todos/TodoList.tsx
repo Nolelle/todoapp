@@ -78,6 +78,7 @@ export default function TodoList() {
         todos.map((todo) => (todo.id === id ? { ...todo, status } : todo))
       );
     } catch (error) {
+      console.error("Error updating todo status:", error);
       setError("Failed to update todo status");
     }
   };
