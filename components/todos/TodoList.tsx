@@ -54,13 +54,28 @@ export default function TodoList() {
         method: "DELETE"
       });
 
-      if (!response.ok) throw new Error("Failed to delete todo");
+      if (!response.ok) {
+        let errorMessage = "Failed to delete todo";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response isn't JSON, try to get text
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
 
+      // Only update UI if deletion was successful
       setTodos(todos.filter((todo) => todo.id !== deleteModal.todoId));
       setDeleteModal({ isOpen: false, todoId: null });
+      setError(null); // Clear any existing errors
     } catch (error) {
       console.error("Error deleting todo:", error);
-      setError("Failed to delete todo");
+      setError(
+        error instanceof Error ? error.message : "Failed to delete todo"
+      );
     }
   };
 
@@ -72,7 +87,7 @@ export default function TodoList() {
         body: JSON.stringify({ status })
       });
 
-      if (!response.ok) throw new Error("Failed to update todo");
+      if (!response.ok) throw new Error("Failed to update todo status");
 
       setTodos(
         todos.map((todo) => (todo.id === id ? { ...todo, status } : todo))
@@ -94,22 +109,17 @@ export default function TodoList() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="max-w-3xl mx-auto p-4">
-        <ErrorMessage
-          message={error}
-          onRetry={fetchTodos}
-          className="mb-4"
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto p-4">
-        {/* Todo List */}
+        {error && (
+          <ErrorMessage
+            message={error}
+            onRetry={fetchTodos}
+            className="mb-4"
+          />
+        )}
+
         <div className="space-y-4">
           {todos.length === 0 ? (
             <p className="text-center text-gray-500 mt-8">
@@ -127,7 +137,6 @@ export default function TodoList() {
           )}
         </div>
 
-        {/* Add Todo Form Modal */}
         {showAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
@@ -165,13 +174,11 @@ export default function TodoList() {
           </div>
         )}
 
-        {/* Floating Add Button */}
         <AddTodoButton
           showForm={showAddForm}
           onClick={() => setShowAddForm(!showAddForm)}
         />
 
-        {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
           isOpen={deleteModal.isOpen}
           onClose={() => setDeleteModal({ isOpen: false, todoId: null })}
