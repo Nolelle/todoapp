@@ -1,22 +1,33 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+// Validation schema for todo updates
+const todoUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  dueDate: z.string().optional(), // ISO date string
+  priority: z.number().min(1).max(3).optional(),
+  status: z.enum(["pending", "completed"]).optional()
+});
 
 // GET /api/todos/[id] - Get a specific todo
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth();
-  if (!session) {
+export const GET = auth(async (req) => {
+  if (!req.auth) {
     return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
+    return new NextResponse("Invalid ID", { status: 400 });
   }
 
   try {
     const todo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
-        userId: parseInt(session.user.id)
+        id: parseInt(id),
+        userId: parseInt(req.auth.user.id)
       }
     });
 
@@ -29,27 +40,39 @@ export async function GET(
     console.error("Error fetching todo:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-}
+});
 
 // PATCH /api/todos/[id] - Update a todo
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth();
-  if (!session) {
+export const PATCH = auth(async (req) => {
+  if (!req.auth) {
     return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
+    return new NextResponse("Invalid ID", { status: 400 });
   }
 
   try {
     const body = await req.json();
-    const { title, description, dueDate, priority, status } = body;
+
+    // Validate the request body
+    const validationResult = todoUpdateSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { errors: validationResult.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { title, description, dueDate, priority, status } =
+      validationResult.data;
 
     // First verify the todo belongs to the user
     const existingTodo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
-        userId: parseInt(session.user.id)
+        id: parseInt(id),
+        userId: parseInt(req.auth.user.id)
       }
     });
 
@@ -59,40 +82,44 @@ export async function PATCH(
 
     const updatedTodo = await prisma.todo.update({
       where: {
-        id: parseInt(params.id)
+        id: parseInt(id)
       },
       data: {
-        title,
-        description,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        priority,
-        status
+        ...(title && { title }),
+        ...(description !== undefined && { description }),
+        ...(dueDate && { dueDate: new Date(dueDate) }),
+        ...(priority && { priority }),
+        ...(status && { status })
       }
     });
 
     return NextResponse.json(updatedTodo);
   } catch (error) {
     console.error("Error updating todo:", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ errors: error.errors }, { status: 400 });
+    }
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-}
+});
 
 // DELETE /api/todos/[id] - Delete a todo
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth();
-  if (!session) {
+export const DELETE = auth(async (req) => {
+  if (!req.auth) {
     return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const id = req.nextUrl.pathname.split("/").pop();
+  if (!id) {
+    return new NextResponse("Invalid ID", { status: 400 });
   }
 
   try {
     // First verify the todo belongs to the user
     const existingTodo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
-        userId: parseInt(session.user.id)
+        id: parseInt(id),
+        userId: parseInt(req.auth.user.id)
       }
     });
 
@@ -102,7 +129,7 @@ export async function DELETE(
 
     await prisma.todo.delete({
       where: {
-        id: parseInt(params.id)
+        id: parseInt(id)
       }
     });
 
@@ -111,4 +138,4 @@ export async function DELETE(
     console.error("Error deleting todo:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-}
+});
