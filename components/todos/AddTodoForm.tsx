@@ -1,4 +1,3 @@
-// components/todos/AddTodoForm.tsx
 "use client";
 
 import { ErrorMessage } from "@/components/todos/ErrorMessage";
@@ -37,10 +36,8 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
         body: JSON.stringify(data)
       });
 
-      const responseData = await response.json().catch(() => null);
-
       if (!response.ok) {
-        throw new Error(responseData?.message || "Failed to create todo");
+        throw new Error("Failed to create todo");
       }
 
       onAdd();

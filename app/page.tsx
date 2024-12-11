@@ -8,7 +8,7 @@ export default async function HomePage() {
 
   // If authenticated, redirect to todos page
   if (session) {
-    redirect("/todos");
+    redirect("/todo");
   }
 
   return (

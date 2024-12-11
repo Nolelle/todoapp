@@ -1,35 +1,32 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = auth(async (req) => {
-  if (!req.auth) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
+// POST /api/todos - Create a new todo
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    console.log("Received todo data:", body);
-
-    if (!body.title) {
-      return new NextResponse("Title is required", { status: 400 });
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = parseInt(req.auth.user.id);
+    const body = await req.json();
 
-    console.log("Creating todo for user:", userId);
+    if (!body.title?.trim()) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
 
-    if (!userId) {
-      console.error("Invalid user ID:", req.auth.user.id);
-      return new NextResponse("Invalid user ID", { status: 400 });
+    const userId = parseInt(session.user.id);
+    if (isNaN(userId)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const todo = await prisma.todo.create({
       data: {
-        title: body.title,
-        description: body.description || null,
+        title: body.title.trim(),
+        description: body.description?.trim() || null,
         dueDate: body.dueDate ? new Date(body.dueDate) : null,
-        priority: body.priority || 1,
+        priority: Number(body.priority) || 1,
         status: "pending",
         userId: userId
       }
@@ -37,28 +34,30 @@ export const POST = auth(async (req) => {
 
     return NextResponse.json(todo);
   } catch (error) {
-    console.error("Error creating todo:", {
-      error,
-      auth: req.auth,
-      userId: req.auth?.user?.id
-    });
-
-    if (error instanceof Error) {
-      return new NextResponse(`Error: ${error.message}`, { status: 500 });
-    }
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error creating todo:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
-});
+}
 
-export const GET = auth(async (req) => {
-  if (!req.auth) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
+// GET /api/todos - Get all todos for the user
+export async function GET() {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = parseInt(session.user.id);
+    if (isNaN(userId)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
+    }
+
     const todos = await prisma.todo.findMany({
       where: {
-        userId: parseInt(req.auth.user.id)
+        userId: userId
       },
       orderBy: {
         createdAt: "desc"
@@ -68,6 +67,9 @@ export const GET = auth(async (req) => {
     return NextResponse.json(todos);
   } catch (error) {
     console.error("Error fetching todos:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
-});
+}
