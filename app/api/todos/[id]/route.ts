@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
-// Validation schema for todo updates
 const todoUpdateSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -12,15 +11,11 @@ const todoUpdateSchema = z.object({
   status: z.enum(["pending", "completed"]).optional()
 });
 
-// The correct type for route context
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
-// GET /api/todos/[id] - Get a specific todo
-export async function GET(request: NextRequest, context: RouteContext) {
+// GET /api/todos/[id]
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse> {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -45,15 +40,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-// PATCH /api/todos/[id] - Update a todo
-export async function PATCH(request: NextRequest, context: RouteContext) {
+// PATCH /api/todos/[id]
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse> {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const body = await request.json();
+    const body = await req.json();
 
     const validationResult = todoUpdateSchema.safeParse(body);
     if (!validationResult.success) {
@@ -100,8 +98,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE /api/todos/[id] - Delete a todo
-export async function DELETE(request: NextRequest, context: RouteContext) {
+// DELETE /api/todos/[id]
+export async function DELETE(
+  req: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse> {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
