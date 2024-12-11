@@ -7,16 +7,20 @@ import { z } from "zod";
 const todoUpdateSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  dueDate: z.string().optional(), // ISO date string
+  dueDate: z.string().optional(),
   priority: z.number().min(1).max(3).optional(),
   status: z.enum(["pending", "completed"]).optional()
 });
 
+// The correct type for route context
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 // GET /api/todos/[id] - Get a specific todo
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -25,7 +29,7 @@ export async function GET(
   try {
     const todo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
+        id: parseInt(context.params.id),
         userId: parseInt(session.user.id)
       }
     });
@@ -42,19 +46,15 @@ export async function GET(
 }
 
 // PATCH /api/todos/[id] - Update a todo
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const body = await req.json();
+    const body = await request.json();
 
-    // Validate the request body
     const validationResult = todoUpdateSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
@@ -66,10 +66,9 @@ export async function PATCH(
     const { title, description, dueDate, priority, status } =
       validationResult.data;
 
-    // First verify the todo belongs to the user
     const existingTodo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
+        id: parseInt(context.params.id),
         userId: parseInt(session.user.id)
       }
     });
@@ -80,7 +79,7 @@ export async function PATCH(
 
     const updatedTodo = await prisma.todo.update({
       where: {
-        id: parseInt(params.id)
+        id: parseInt(context.params.id)
       },
       data: {
         ...(title && { title }),
@@ -102,20 +101,16 @@ export async function PATCH(
 }
 
 // DELETE /api/todos/[id] - Delete a todo
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    // First verify the todo belongs to the user
     const existingTodo = await prisma.todo.findUnique({
       where: {
-        id: parseInt(params.id),
+        id: parseInt(context.params.id),
         userId: parseInt(session.user.id)
       }
     });
@@ -126,7 +121,7 @@ export async function DELETE(
 
     await prisma.todo.delete({
       where: {
-        id: parseInt(params.id)
+        id: parseInt(context.params.id)
       }
     });
 
