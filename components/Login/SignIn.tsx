@@ -1,10 +1,12 @@
-import { signIn } from "@/auth";
+// components/Login/SignIn.tsx
+"use client";
+
+import { handleSignIn } from "@/app/actions/auth";
 import { useFormStatus } from "react-dom";
 
 // Button component with loading state
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
     <button
       type="submit"
@@ -18,22 +20,13 @@ function SubmitButton() {
 }
 
 export default function LoginForm() {
-  const handleSubmit = async (formData: FormData) => {
-    "use server";
-    await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirectTo: "/todos"
-    });
-  };
-
   return (
     <div className="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
         Sign In
       </h2>
       <form
-        action={handleSubmit}
+        action={handleSignIn}
         className="space-y-4"
       >
         <div>

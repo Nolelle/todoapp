@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import LoginForm from "@/components/LoginForm";
+import SignIn from "@/components/Login/SignIn";
 import { redirect } from "next/navigation";
 
 export default async function HomePage() {
@@ -20,7 +20,7 @@ export default async function HomePage() {
         <p className="text-center text-gray-600 mb-8">
           Please sign in to manage your todos
         </p>
-        <LoginForm />
+        <SignIn />
       </div>
     </div>
   );
